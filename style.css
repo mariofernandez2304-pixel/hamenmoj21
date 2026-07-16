@@ -1,0 +1,70 @@
+:root {
+    --azul-bcp: #002a8d;
+    --naranja-bcp: #ff7800;
+    --gris-oscuro: #4d4d4d;
+    --gris-borde: #ced4da;
+    --gris-label: #757575;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+
+body { background: #fff; display: flex; flex-direction: column; min-height: 100vh; }
+
+header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+.logo-bcp { width: 90px; }
+.icon-headset { color: var(--azul-bcp); }
+
+main { padding: 25px; max-width: 450px; margin: 0 auto; width: 100%; }
+
+h1 { font-size: 34px; line-height: 1.1; margin-bottom: 10px; font-weight: 700; color: var(--azul-bcp); }
+.subtitle { color: var(--gris-oscuro); font-size: 18px; margin-bottom: 35px; }
+
+/* PERSONA / EMPRESA SELECTOR */
+.radio-group { display: flex; gap: 30px; margin-bottom: 30px; }
+.radio-item { display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--gris-oscuro); font-weight: 500; font-size: 17px; }
+.radio-item input { accent-color: var(--naranja-bcp); width: 22px; height: 22px; cursor: pointer; }
+
+/* INPUTS */
+.input-container { position: relative; margin-bottom: 25px; }
+.input-container input, .input-container select {
+    width: 100%;
+    padding: 18px 15px;
+    border: 1px solid var(--gris-borde);
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    color: var(--gris-oscuro);
+    background: #fff;
+}
+.input-container input:focus { border: 2px solid var(--azul-bcp); padding: 17px 14px; }
+
+/* DOCUMENTO FILA */
+.doc-row { display: flex; gap: 10px; }
+.doc-type { flex: 0.4; }
+.doc-num { flex: 1; }
+
+.label-mini {
+    position: absolute;
+    left: 12px;
+    top: -9px;
+    background: #fff;
+    padding: 0 5px;
+    font-size: 12px;
+    color: var(--gris-label);
+    z-index: 10;
+}
+
+/* BOTÓN NARANJA */
+.btn-continuar {
+    width: 100%;
+    background-color: var(--naranja-bcp);
+    color: #fff;
+    border: none;
+    padding: 17px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 30px;
+    box-shadow: 0 4px 10px rgba(255, 120, 0, 0.2);
+}

